@@ -68,6 +68,7 @@ class HomeScreen extends React.Component {
            <FlatList
               data={this.state.news}
               renderItem={this._renderItem}
+              keyExtractor={this._keyExtractor}
            />
         </View>
         <Button
@@ -83,12 +84,16 @@ class HomeScreen extends React.Component {
       </ScrollView>
     );
   }
-  _onPress = () => {
-       console.log(9);
+  _keyExtractor = (item) => item.uniquekey;
+  _onPress = (url) => {
+       console.log(url);
        {/* this.props.onPressItem(this.props.id);*/}
-  };
+       this.props.navigation.navigate('Details', {
+        otherParam: url,
+      });
+  }
   _renderItem = ({item}) => (
-    <TouchableOpacity onPress={this._onPress}>
+    <TouchableOpacity onPress={()=>this._onPress(item.url)}>
        <View style={styles.newsItem}>
           <Image style={styles.newsImage} source={{uri: item.thumbnail_pic_s}} />
           <Text style={styles.newsTitle}>

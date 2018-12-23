@@ -53,7 +53,7 @@ class DetailsScreen extends React.Component {
           source={{ uri: otherParam }}
           onLoadEnd={this.htmlLoaded.bind(this)}
         />
-        <Buttonrr
+        <Button
           title="Go to Home"
           onPress={() => this.props.navigation.navigate("Home")}
         />

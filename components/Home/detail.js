@@ -51,7 +51,7 @@ class DetailsScreen extends React.Component {
         <WebView
           originWhitelist={["*"]}
           source={{ uri: otherParam }}
-          onLoadEnd={this.htmlLoaded.bind(this)}
+          onLoadStart={this.htmlLoaded.bind(this)}
         />
         <Button
           title="Go to Home"
@@ -61,10 +61,12 @@ class DetailsScreen extends React.Component {
     );
   }
   htmlLoaded() {
-    console.log(33);
-    this.setState({
-      loaded: false
-    });
+    var that = this;
+    setTimeout(function(){
+      that.setState({
+        loaded: false
+      });
+    },3000)
   }
   componentDidMount() {
     console.log(22);
@@ -81,7 +83,17 @@ const styles = StyleSheet.create({
     textAlign: "center",
     margin: 10
   },
-  indicator: {}
+  indicator: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems:'center',
+    position:'absolute',
+    zIndex:1000,
+    top:0,
+    right:0,
+    bottom:0,
+    left:0,
+  }
 });
 {
   /**/

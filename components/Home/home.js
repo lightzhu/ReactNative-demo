@@ -38,20 +38,20 @@ class HomeScreen extends React.Component {
     this.state = {
         sliderList: [
             {
-            'name':'01',
-            'url':require('../../src/img/1.jpg')
+            'title':'01',
+            'cover_image_url':require('../../src/img/1.jpg')
             },
             {
-            'name':'02',
-            'url':require('../../src/img/2.jpg')
+            'title':'02',
+            'cover_image_url':require('../../src/img/2.jpg')
             },
             {
-            'name':'03',
-            'url':require('../../src/img/3.jpg')
+            'title':'03',
+            'cover_image_url':require('../../src/img/3.jpg')
             },
             {
-            'name':'04',
-            'url':require('../../src/img/4.jpg')
+            'title':'04',
+            'cover_image_url':require('../../src/img/4.jpg')
             }
         ],
         news:newsList.result.data
@@ -84,6 +84,20 @@ class HomeScreen extends React.Component {
       </ScrollView>
     );
   }
+
+  getSwiperList() {
+    fetch("https://www.toutiao.com/api/pc/hot_gallery/?widen=1", { method: "GET", })
+      .then((response) => response.json())
+      .then(arr => {
+        console.log(arr);
+        this.setState({
+          sliderList: arr.data
+        })
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
   _keyExtractor = (item) => item.uniquekey;
   _onPress = (url) => {
        console.log(url);
@@ -107,6 +121,7 @@ class HomeScreen extends React.Component {
   );
   componentDidMount() {
     console.log(newsList);
+    this.getSwiperList();
   }
 }
 

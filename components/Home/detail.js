@@ -53,10 +53,6 @@ class DetailsScreen extends React.Component {
           source={{ uri: otherParam }}
           onLoadStart={this.htmlLoaded.bind(this)}
         />
-        <Button
-          title="Go to Home"
-          onPress={() => this.props.navigation.navigate("Home")}
-        />
       </View>
     );
   }
@@ -69,7 +65,7 @@ class DetailsScreen extends React.Component {
     },3000)
   }
   componentDidMount() {
-    console.log(22);
+    
   }
 }
 

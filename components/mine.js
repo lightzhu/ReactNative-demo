@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 
-export default class mine extends Component<Props>{
+export default class mine extends Component{
   constructor(props) {
     super(props);
     this._handlePress = this._handlePress.bind(this);

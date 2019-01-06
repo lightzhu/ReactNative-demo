@@ -12,6 +12,7 @@ import Mine from './components/mine';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Dimensions } from 'react-native';
+import BaseComponent from 'rmc-input-number/lib/base';
 
 const deviceWidth = Dimensions.get('window').width;
 const basePx = 375
@@ -25,11 +26,10 @@ const instructions = Platform.select({
     'Shake or press menu button for dev menu',
 });
 
-type Props = {};
-export default class App extends Component<Props> {
+export default class App extends BaseComponent {
   state= {
     selectedTab: 'home',
-    badge_text:'4'
+    badge_text:'5'
   };
   render() {
     return (

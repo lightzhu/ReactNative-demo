@@ -62,7 +62,7 @@ class HomeScreen extends React.Component {
     return (
       <ScrollView>
         <View style={styles.MainSwiper}>
-            <HomeSwiper dataList={this.state.sliderList} />
+          <HomeSwiper dataList={this.state.sliderList} toDetail={this.toDetail.bind(this)}/>
         </View>
         <View style={styles.list}>
            <FlatList
@@ -80,11 +80,14 @@ class HomeScreen extends React.Component {
             });
           }}
         />
-
       </ScrollView>
     );
   }
-
+  toDetail(url){
+    this.props.navigation.navigate('Details', {
+      otherParam: url,
+    });
+  }
   getSwiperList() {
     fetch("https://www.toutiao.com/api/pc/hot_gallery/?widen=1", { method: "GET", })
       .then((response) => response.json())
@@ -101,22 +104,21 @@ class HomeScreen extends React.Component {
   _keyExtractor = (item) => item.uniquekey;
   _onPress = (url) => {
        console.log(url);
-       {/* this.props.onPressItem(this.props.id);*/}
        this.props.navigation.navigate('Details', {
         otherParam: url,
       });
   }
   _renderItem = ({item}) => (
-    <TouchableOpacity onPress={()=>this._onPress(item.url)}>
-       <View style={styles.newsItem}>
-          <Image style={styles.newsImage} source={{uri: item.thumbnail_pic_s}} />
-          <Text style={styles.newsTitle}>
-              {item.title}
-          </Text>
-          <Text style={styles.newsFoot}>
-             {item.date}  {item.author_name}
-          </Text>
-       </View>
+    <TouchableOpacity onPress={() => this._onPress(item.url)}>
+      <View style={styles.newsItem}>
+        <Image style={styles.newsImage} source={{ uri: item.thumbnail_pic_s }} />
+        <Text style={styles.newsTitle}>
+          {item.title}
+        </Text>
+        <Text style={styles.newsFoot}>
+          {item.date}  {item.author_name}
+        </Text>
+      </View>
     </TouchableOpacity>
   );
   componentDidMount() {
@@ -158,7 +160,7 @@ const styles = StyleSheet.create({
   },
   MainSwiper:{
     height: 0.5*deviceWidth,
-    backgroundColor: 'red',
+    backgroundColor: '#fff',
   },
   welcome: {
     fontSize: 20,

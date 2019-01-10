@@ -15,6 +15,9 @@ class MySwiper extends React.Component {
     super(props);
     this.state = { date: new Date() };
   }
+  componentWillMount(){
+    console.log(this.props);
+  }
   render() {
     return (
       <Swiper style={styles.wrapper} showsButtons={false} autoplay={true}>
@@ -50,7 +53,6 @@ class MySwiper extends React.Component {
   renderImageList(data) {
     var listHtml =[];
     for (var i = 0; i < data.length; i++) {
-      console.log(i);
       let articleUrl = 'https://www.toutiao.com' + data[i].article_url;
       listHtml.push(
         <View style={styles.slide} key={i}>

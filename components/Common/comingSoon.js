@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {ScrollView, StyleSheet, Text, View,Image,TouchableOpacity,ActivityIndicator} from 'react-native';
 import { Dimensions } from 'react-native';
-import moviesList from "../Movie/list";
+import { Toast } from 'antd-mobile-rn';
 const deviceWidth = Dimensions.get('window').width;
 const basePx = 375
 const itemWidth = deviceWidth / 3;
@@ -14,8 +14,6 @@ class ComingSoon extends React.Component {
     super(props);
     this.state = {
       date: new Date(),
-      movies:this.props.list.subjects,
-      //movies:moviesList.in_theaters.subjects
       loadMore:true,
       start:0,
       count:20,
@@ -30,7 +28,7 @@ class ComingSoon extends React.Component {
       >
         <View style={styles.list}>
         {/** */}
-        {this._renderItem(this.state.movies)}
+        {this._renderItem(this.props.list.moviecomings)}
         </View>
         <ActivityIndicator
             size="large"
@@ -49,79 +47,44 @@ class ComingSoon extends React.Component {
   };
   _renderItem = (data) => {
     var that = this;
-    let movieItem = data.map(function (item) {
-      return (
-        <TouchableOpacity key={item.id} onPress={() => {that.toMovieDetail(item.alt)}}>
-          <View style={styles.newsItem}>
-            <Image
-              style={styles.newsImage}
-              source={{ uri: item.images.medium }}
-            />
-            <View style={styles.average}>
-              <Text style={styles.score}>{item.rating.average}</Text>
+    if(data.length){
+      let movieItem = data.map(function (item) {
+        return (
+          <TouchableOpacity key={item.id} onPress={() => {that.toMovieDetail(item.alt)}}>
+            <View style={styles.newsItem}>
+              <Image
+                style={styles.newsImage}
+                source={{ uri: item.image }}
+              />
+              <View style={styles.average}>
+                <Text style={styles.score}>{item.releaseDate}</Text>
+              </View>
+              <View style={styles.foot}>
+                <Text style={styles.newsTitle} numberOfLines={1}>{item.title}</Text>
+              </View>
             </View>
-            <View style={styles.foot}>
-              <Text style={styles.newsTitle} numberOfLines={1}>{item.title}</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-      ) 
-    })
-    return movieItem;
+          </TouchableOpacity>
+        ) 
+      })
+      return movieItem;
+    }
   };
 
-  getIn_theaters(start,count,first){
-    fetch(`https://api.douban.com/v2/movie/coming_soon?start=${start}&count=${count}`, {
-      method: "GET"
-    })
-      .then(response => response.json())
-      .then(arr => {
-        console.log(arr);
-        this.setState({
-          start: (this.state.start+20),
-          total:arr.total
-        });
-        if(first){
-          this.setState({
-            movies: arr.subjects
-          });
-        }else{
-          this.setState({
-            movies: [...this.state.movies,...arr.subjects]
-          });
-          console.log(this.state.movies);
-        }
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  }
   componentDidMount() {
-    this.getIn_theaters(this.state.start,this.state.count,true);
+    //this.getIn_theaters(this.state.start,this.state.count,true);
   }
-  refreshMoviesList(){
-    if(this.state.isAll){
-      alert("没有更多了");
-      this.setState({
-        loadMore: fasle
-      });
-      return
-    }
-    if((this.state.start)>=this.state.total){
-      this.setState({
-        isAll:true
-      })
-    }
-    this.getIn_theaters(this.state.start,this.state.count);
+  showToastNoMask() {
+    Toast.info('没有更多了', 1, undefined, false);
   }
   homeScrollEnd(e: Object) {
-    debugger
     var offsetY = e.nativeEvent.contentOffset.y; //滑动距离
     var contentSizeHeight = e.nativeEvent.contentSize.height; //scrollView contentSize高度
     var oriageScrollHeight = e.nativeEvent.layoutMeasurement.height; //scrollView高度
     if (offsetY + oriageScrollHeight >= contentSizeHeight) {
-      alert(1);
-      this.refreshMoviesList();
+      this.showToastNoMask();
+      this.setState({
+        loadMore: false
+      });
     }
   };
 }
@@ -152,8 +115,9 @@ const styles = StyleSheet.create({
     bottom:28,
   },
   score:{
-    fontSize:18,
+    fontSize:15,
     color:'yellow',
+    justifyContent:'center',
     flex:1,
   },
   foot: {

@@ -17,11 +17,11 @@ import {
 } from "react-native";
 import { createStackNavigator, createAppContainer } from "react-navigation";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { Dimensions } from "react-native";
+import { Dimensions,AsyncStorage } from "react-native";
 import Detail from "./detail";
 import HomeSwiper from "../Common/swiper";
-
-import newsList from "./news";
+import { Toast } from 'antd-mobile-rn';
+// import newsList from "./news";//模拟数据
 const deviceWidth = Dimensions.get("window").width;
 const basePx = 375;
 
@@ -41,38 +41,49 @@ class HomeScreen extends React.Component {
       </View>
     )
   };
-  loadMore=false;
+  loadMore = false;
+  loader=null;
+  newsAPI='http://v.juhe.cn/toutiao/index?key=d6b425961ff54c50c8a4fb7ceb1d63bd&type=';
   constructor(props) {
     super(props);
     this.state = {
-      sliderList: [
-        {
-          title: "01",
-          cover_image_url: require("../../src/img/1.jpg")
-        },
-        {
-          title: "02",
-          cover_image_url: require("../../src/img/2.jpg")
-        },
-        {
-          title: "03",
-          cover_image_url: require("../../src/img/3.jpg")
-        },
-        {
-          title: "04",
-          cover_image_url: require("../../src/img/4.jpg")
-        }
-      ],
-      news: newsList.result.data,
-      loadMore:true
+      sliderList: [],
+      news: [],
+      newsType:['top','shehui','guonei','yule','tiyu','junshi','keji','caijing','shishang'],//新闻类型
+      loadMore: true
     };
   }
-
+  _retrieveData = async name => {
+    try {
+      const value = await AsyncStorage.getItem(name);
+      return(JSON.parse(value));
+    } catch (error) {
+      // Error retrieving data
+    }
+  };
+  _storeData = async (name, string) => {
+    try {
+      await AsyncStorage.setItem(name, string);
+    } catch (error) {
+      // Error saving data
+    }
+  };
+  componentWillMount() {
+    this.loader = Toast.loading('加载中...');
+    this._retrieveData("slider_list").then((data)=>{
+      this.setState({
+        sliderList: data
+      });
+    });
+    this._retrieveData("news_list").then((data)=>{
+      this.setState({
+        news: data
+      });
+    });
+  }
   render() {
     return (
-      <ScrollView
-        onMomentumScrollEnd={this.homeScrollEnd.bind(this)}
-      >
+      <ScrollView onMomentumScrollEnd={this.homeScrollEnd.bind(this)}>
         <View style={styles.MainSwiper}>
           <HomeSwiper
             dataList={this.state.sliderList}
@@ -87,11 +98,11 @@ class HomeScreen extends React.Component {
           />
         </View>
         <ActivityIndicator
-            size="large"
-            color="#0000ff"
-            animating={this.state.loadMore}
-            hidesWhenStopped={true}
-          />
+          size="large"
+          color="#0000ff"
+          animating={this.state.loadMore}
+          hidesWhenStopped={true}
+        />
       </ScrollView>
     );
   }
@@ -118,9 +129,29 @@ class HomeScreen extends React.Component {
       .then(response => response.json())
       .then(arr => {
         console.log(arr);
+        this._storeData("slider_list", JSON.stringify(arr.data));
         this.setState({
           sliderList: arr.data
         });
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
+
+  getNewsList(){
+    console.log(`${this.newsAPI}top`);
+    fetch(`${this.newsAPI}top`, {
+      method: "GET"
+    })
+      .then(response => response.json())
+      .then(arr => {
+        console.log(arr);
+        this._storeData("news_list", JSON.stringify(arr.result.data));
+        this.setState({
+          news: arr.result.data
+        });
+        Portal.remove(this.loader);
       })
       .catch(error => {
         console.log(error);
@@ -148,23 +179,9 @@ class HomeScreen extends React.Component {
     </TouchableOpacity>
   );
   componentDidMount() {
-    console.log(newsList);
-    this.getSwiperList();
+    // console.log(newsList);
+    this.getNewsList();
   }
-}
-
-{
-  /*
-class detail extends Component<Props> {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>这是详情页</Text>
-      </View>
-    );
-  }
-}
-*/
 }
 
 const RootStack = createStackNavigator(

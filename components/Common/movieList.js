@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {ScrollView, StyleSheet, Text, View,Image,TouchableOpacity,ActivityIndicator} from 'react-native';
 import { Dimensions } from 'react-native';
-import moviesList from "../Movie/list";
+import { Toast } from 'antd-mobile-rn';
 const deviceWidth = Dimensions.get('window').width;
 const basePx = 375
 const itemWidth = deviceWidth / 3;
@@ -14,8 +14,7 @@ class MovieList extends React.Component {
     super(props);
     this.state = {
       date: new Date(),
-      movies:this.props.list.subjects,
-      //movies:moviesList.in_theaters.subjects
+      movies:this.props.list.ms,
       loadMore:true,
       start:0,
       count:20,
@@ -30,14 +29,14 @@ class MovieList extends React.Component {
       >
         <View style={styles.list}>
         {/** */}
-        {this._renderItem(this.state.movies)}
+        {this._renderItem(this.props.list.ms)}
         </View>
         <ActivityIndicator
-            size="large"
-            color="#0000ff"
-            animating={this.state.loadMore}
-            hidesWhenStopped={true}
-          />
+          size="large"
+          color="#0000ff"
+          animating={this.state.loadMore}
+          hidesWhenStopped={true}
+        />
       </ScrollView>
     );
   }
@@ -47,27 +46,33 @@ class MovieList extends React.Component {
     //   otherParam: url
     // });
   };
+  renderText=(data)=>{
+    return(<Text style={styles.score}>{data}</Text>)
+  }
   _renderItem = (data) => {
     var that = this;
-    let movieItem = data.map(function (item) {
-      return (
-        <TouchableOpacity key={item.id} onPress={() => {that.toMovieDetail(item.alt)}}>
-          <View style={styles.newsItem}>
-            <Image
-              style={styles.newsImage}
-              source={{ uri: item.images.medium }}
-            />
-            <View style={styles.average}>
-              <Text style={styles.score}>{item.rating.average}</Text>
+    if(data.length){
+      let movieItem = data.map(function (item) {
+        return (
+          <TouchableOpacity key={item.id} onPress={() => {that.toMovieDetail(item.alt)}}>
+            <View style={styles.newsItem}>
+              <Image
+                style={styles.newsImage}
+                source={{ uri: item.img }}
+              />
+              <View style={styles.average}>
+                <Text style={styles.score}>{(item.r<=0)?'':item.r+'分'}</Text>
+                <Text style={styles.movieType} numberOfLines={1}>{item.movieType}</Text>
+              </View>
+              <View style={styles.foot}>
+                <Text style={styles.newsTitle} numberOfLines={1}>{item.tCn}</Text>
+              </View>
             </View>
-            <View style={styles.foot}>
-              <Text style={styles.newsTitle} numberOfLines={1}>{item.title}</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-      ) 
-    })
-    return movieItem;
+          </TouchableOpacity>
+        ) 
+      })
+      return movieItem;
+    }
   };
 
   getIn_theaters(start,count,first){
@@ -97,13 +102,13 @@ class MovieList extends React.Component {
       });
   }
   componentDidMount() {
-    this.getIn_theaters(this.state.start,this.state.count,true);
+    //this.getIn_theaters(this.state.start,this.state.count,true);
   }
   refreshMoviesList(){
     if(this.state.isAll){
       alert("没有更多了");
       this.setState({
-        loadMore: fasle
+        loadMore: false
       });
       return
     }
@@ -114,13 +119,19 @@ class MovieList extends React.Component {
     }
     this.getIn_theaters(this.state.start,this.state.count);
   }
+  showToastNoMask() {
+    Toast.info('没有更多了', 1, undefined, false);
+  }
   homeScrollEnd(e: Object) {
     var offsetY = e.nativeEvent.contentOffset.y; //滑动距离
     var contentSizeHeight = e.nativeEvent.contentSize.height; //scrollView contentSize高度
     var oriageScrollHeight = e.nativeEvent.layoutMeasurement.height; //scrollView高度
     if (offsetY + oriageScrollHeight >= contentSizeHeight) {
-      alert(1);
-      this.refreshMoviesList();
+      this.showToastNoMask();
+      this.setState({
+        loadMore: false
+      });
+      //this.refreshMoviesList();
     }
   };
 }
@@ -150,10 +161,18 @@ const styles = StyleSheet.create({
     paddingLeft:5,
     bottom:28,
   },
+  movieType:{
+    fontSize:10,
+    flex:3,
+    color:'#fff',
+    height:15,
+    backgroundColor:'rgba(116, 171, 52, 0.8)',
+    alignItems:'center'
+  },
   score:{
-    fontSize:18,
+    fontSize:15,
     color:'yellow',
-    flex:1,
+    flex:2,
   },
   foot: {
     flex: 1,

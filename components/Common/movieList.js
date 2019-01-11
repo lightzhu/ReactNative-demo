@@ -14,8 +14,7 @@ class MovieList extends React.Component {
     super(props);
     this.state = {
       date: new Date(),
-      movies:this.props.list.ms,
-      loadMore:true,
+      loader:true,
       start:0,
       count:20,
       total:0,
@@ -37,14 +36,12 @@ class MovieList extends React.Component {
           animating={this.state.loadMore}
           hidesWhenStopped={true}
         />
+        {/** */}
       </ScrollView>
     );
   }
-  toMovieDetail = (url) => {
-    console.log(url);
-    // this.props.navigation.navigate("Details", {
-    //   otherParam: url
-    // });
+  toMovieDetail = (id,name) => {
+    this.props.toMovieDetail(id,name);
   };
   renderText=(data)=>{
     return(<Text style={styles.score}>{data}</Text>)
@@ -54,7 +51,7 @@ class MovieList extends React.Component {
     if(data.length){
       let movieItem = data.map(function (item) {
         return (
-          <TouchableOpacity key={item.id} onPress={() => {that.toMovieDetail(item.alt)}}>
+          <TouchableOpacity key={item.id} onPress={() => {that.toMovieDetail(item.id,item.tCn)}}>
             <View style={styles.newsItem}>
               <Image
                 style={styles.newsImage}

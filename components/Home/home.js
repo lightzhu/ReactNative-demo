@@ -5,22 +5,18 @@
 
 import React, { Component } from "react";
 import {
-  Platform,
   StyleSheet,
-  ScrollView,
   Text,
   View,
   ActivityIndicator,
   Image,
   TouchableOpacity,
-  FlatList
+  FlatList,Dimensions,AsyncStorage,RefreshControl,Animated
 } from "react-native";
 import { createStackNavigator, createAppContainer } from "react-navigation";
 import Icon from "react-native-vector-icons/FontAwesome";
-import { Dimensions,AsyncStorage } from "react-native";
 import Detail from "./detail";
 import HomeSwiper from "../Common/swiper";
-import { Toast } from 'antd-mobile-rn';
 // import newsList from "./news";//模拟数据
 const deviceWidth = Dimensions.get("window").width;
 const basePx = 375;
@@ -33,7 +29,10 @@ class HomeScreen extends React.Component {
   static navigationOptions = {
     title: "主页",
     headerTitleStyle: {
-      textAlign: "center"
+      textAlign: "center",
+    },
+    headerStyle:{
+      height:45
     },
     headerRight: (
       <View style={{ marginRight: 10 }}>
@@ -41,16 +40,20 @@ class HomeScreen extends React.Component {
       </View>
     )
   };
-  loadMore = false;
+  isLoadingMore = true;
   loader=null;
+  newsType=['top','shehui','guonei','yule','tiyu','junshi','keji','caijing','shishang'];//新闻类型
+  newsTypeIndex=0;
   newsAPI='http://v.juhe.cn/toutiao/index?key=d6b425961ff54c50c8a4fb7ceb1d63bd&type=';
   constructor(props) {
     super(props);
     this.state = {
       sliderList: [],
       news: [],
-      newsType:['top','shehui','guonei','yule','tiyu','junshi','keji','caijing','shishang'],//新闻类型
-      loadMore: true
+      loadMore: true,
+      refreshing: false,
+      fadeInOpacity: new Animated.Value(0),
+      padTop:new Animated.Value(0),
     };
   }
   _retrieveData = async name => {
@@ -68,8 +71,34 @@ class HomeScreen extends React.Component {
       // Error saving data
     }
   };
+  _onRefresh = () => {
+    this.setState({refreshing: true});
+    console.log("下拉刷新");
+    Animated.timing(this.state.padTop, {
+      toValue: 30, // 目标值
+      duration: 200, // 动画时间
+    }).start(()=>{
+      this.setState({padTop: new Animated.Value(30)});
+    });
+    this.updateSelf().then((rep)=>{
+      setTimeout(()=>{
+        this.setState({refreshing: false});
+        Animated.timing(this.state.padTop, {
+          toValue: 0,
+          duration: 400,
+        }).start(()=>{
+          this.setState({padTop: new Animated.Value(0)});
+        });
+      },2000)
+      
+    });
+  }
+  updateSelf = async()=>{
+    await this.getSwiperList();
+    //await this.getNewsList("top");
+    return null;
+  }
   componentWillMount() {
-    this.loader = Toast.loading('加载中...');
     this._retrieveData("slider_list").then((data)=>{
       this.setState({
         sliderList: data
@@ -83,7 +112,20 @@ class HomeScreen extends React.Component {
   }
   render() {
     return (
-      <ScrollView onMomentumScrollEnd={this.homeScrollEnd.bind(this)}>
+      <Animated.ScrollView 
+        style={{paddingTop:this.state.padTop}}
+        alwaysBounceVertical={true}
+        onMomentumScrollEnd={this.homeScrollEnd.bind(this)}
+        refreshControl={
+          <RefreshControl
+            progressViewOffset={-15}
+            refreshing={this.state.refreshing}
+            onRefresh={this._onRefresh}
+            title={this.state.isRefreshing ? '刷新中....' : '下拉刷新'}
+          />
+        }
+      >
+        {/***/}
         <View style={styles.MainSwiper}>
           <HomeSwiper
             dataList={this.state.sliderList}
@@ -97,13 +139,19 @@ class HomeScreen extends React.Component {
             keyExtractor={this._keyExtractor}
           />
         </View>
-        <ActivityIndicator
-          size="large"
-          color="#0000ff"
-          animating={this.state.loadMore}
-          hidesWhenStopped={true}
-        />
-      </ScrollView>
+        {/**onEndReached={this.homeScrollEnd.bind(this)}
+            onEndReachedThreshold={0.2}*/}
+        <View>
+          {this.state.loadMore ?
+            <ActivityIndicator
+              size="large"
+              color="#0000ff"
+              animating={this.state.loadMore}
+              hidesWhenStopped={true}
+            /> : <Text style={styles.nomore}>没有更多了☺~☺</Text>
+          }
+        </View>
+      </Animated.ScrollView>
     );
   }
   toDetail(url) {
@@ -115,10 +163,19 @@ class HomeScreen extends React.Component {
     var offsetY = e.nativeEvent.contentOffset.y; //滑动距离
     var contentSizeHeight = e.nativeEvent.contentSize.height; //scrollView contentSize高度
     var oriageScrollHeight = e.nativeEvent.layoutMeasurement.height; //scrollView高度
-    if (offsetY + oriageScrollHeight >= contentSizeHeight) {
-      this.setState({
-        loadMore: fasle
-      });
+    if (offsetY + oriageScrollHeight >= contentSizeHeight-15) {
+      if(this.newsTypeIndex>this.newsType.length){
+        this.isLoadingMore=false;
+        this.setState({
+          loadMore: false
+        });
+      }else{
+        this.newsTypeIndex++;
+        if(this.isLoadingMore){
+          this.getNewsList(this.newsType[this.newsTypeIndex]);
+        }
+        this.isLoadingMore=false;
+      }
     }
   }
 
@@ -139,25 +196,31 @@ class HomeScreen extends React.Component {
       });
   }
 
-  getNewsList(){
-    console.log(`${this.newsAPI}top`);
-    fetch(`${this.newsAPI}top`, {
+  getNewsList(type){
+    // console.log(`${this.newsAPI}${type}`);
+    fetch(`${this.newsAPI}${type}`, {
       method: "GET"
     })
       .then(response => response.json())
       .then(arr => {
         console.log(arr);
-        this._storeData("news_list", JSON.stringify(arr.result.data));
-        this.setState({
-          news: arr.result.data
-        });
-        Portal.remove(this.loader);
+        this.isLoadingMore=true;
+        if(type==="top"){
+          this._storeData("news_list", JSON.stringify(arr.result.data));
+          this.setState({
+            news: arr.result.data
+          });
+        }else{
+          this.setState({
+            news: [...this.state.news,...arr.result.data]
+          });
+        }
       })
       .catch(error => {
         console.log(error);
       });
   }
-  _keyExtractor = item => item.uniquekey;
+  _keyExtractor = item => item.uniquekey+Math.random(0,10);
   _onPress = url => {
     console.log(url);
     this.props.navigation.navigate("Details", {
@@ -180,14 +243,22 @@ class HomeScreen extends React.Component {
   );
   componentDidMount() {
     // console.log(newsList);
-    this.getNewsList();
+    this.getSwiperList();
+    //this.getNewsList('top');
   }
 }
 
 const RootStack = createStackNavigator(
   {
     Home: HomeScreen,
-    Details: Detail
+    Details: {
+      screen:Detail,
+      navigationOptions: () =>({
+        headerStyle:{
+          height:45
+        }
+      }),
+    }
   },
   {
     initialRouteName: "Home"
@@ -209,6 +280,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textAlign: "center",
     margin: 10
+  },
+  nomore:{
+    paddingTop:5,
+    textAlign:'center',
   },
   image: {
     flex: 1

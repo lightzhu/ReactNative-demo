@@ -1,17 +1,23 @@
 import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View,AsyncStorage,Dimensions } from 'react-native';
-
+import { createStackNavigator, createAppContainer } from "react-navigation";
 import { Tabs } from 'antd-mobile-rn';
 import MovieList from '../Common/movieList';
 import ComingSoon from '../Common/comingSoon';
+import MovieDetail from './movieDetail';
 // import movieData from "../Movie/list";
 const deviceWidth = Dimensions.get('window').width;
-const basePx = 375
-
+const basePx = 375;
+let childName='电影详情';
 function px2dp(px) {
   return px *  deviceWidth / basePx
 }
-export default class movie extends Component {
+class movie extends Component {
+  static navigationOptions = {
+    headerStyle: {
+      display: 'none',
+    },
+  };
   constructor(props){
     super(props);
     this.state = {
@@ -19,7 +25,7 @@ export default class movie extends Component {
       // coming_soon:movieData.coming_soon,
       in_theaters:{ms:[]},
       coming_soon:{moviecomings:[]},
-      text:'初始值'
+      text:'初始值',
     };
   }
   componentWillMount(){
@@ -67,7 +73,11 @@ export default class movie extends Component {
         <View style={{ flex: 1 }}>
           <Tabs tabs={tabs}>
             <View style={styles.tabItem}>
-              <MovieList list={this.state.in_theaters} text={this.state.text} />
+              <MovieList 
+              list={this.state.in_theaters} 
+              text={this.state.text}
+              toMovieDetail={this.toMovieDetail.bind(this)}
+              />
             </View>
             <View style={styles.tabItem}>
               <ComingSoon list={this.state.coming_soon} />
@@ -113,18 +123,38 @@ export default class movie extends Component {
         console.log(error);
       });
   }
-  toMovieDetail = (url) => {
+  toMovieDetail = (url,name) => {
     console.log(url);
-    // this.props.navigation.navigate("Details", {
-    //   otherParam: url
-    // });
+    childName = name;
+    this.props.navigation.navigate("MovieDetail", {
+      movieId: url
+    });
   }
   componentDidMount() {
     this.getIn_theaters();
     this.getComing_soon();
   }
 }
-
+const RootStack = createStackNavigator(
+  {
+    Movie: movie,
+    MovieDetail:{
+      screen:MovieDetail,
+      navigationOptions: () => {
+        return ({
+          title: childName,
+          headerStyle:{
+            height:45
+          }
+        })
+      },
+    } 
+  },
+  {
+    initialRouteName: "Movie"
+  }
+);
+const Movie = createAppContainer(RootStack);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -146,3 +176,4 @@ const styles = StyleSheet.create({
     margin: 10,
   }
 });
+module.exports = Movie;

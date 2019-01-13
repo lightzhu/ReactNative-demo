@@ -1,53 +1,32 @@
 import React, {Component} from 'react';
 import { StyleSheet, Text, View, AsyncStorage, Dimensions, ScrollView, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { Tabs } from 'antd-mobile-rn';
 import movieData from "../../src/data/movieDetail";
 import Icon from 'react-native-vector-icons/FontAwesome';
+//import VideoPlayer from "../Common/VideoPlayer";
 const deviceWidth = Dimensions.get('window').width;
 const basePx = 375;
 function px2dp(px) {
   return (px * deviceWidth) / basePx;
 }
-export default class movieDetail extends Component {
+export default class MovieVedio extends Component {
   // static navigationOptions = {
   //   title: "电影详情"
   // };
   constructor(props){
     super(props);
     this.state = {
-      loading:true,
+      loading:false,
       movieData:movieData.data,//{},
       expend:false,
     };
   }
-  movieDetailUrl="https://ticket-api-m.mtime.cn/movie/detail.api?locationId=290&movieId=";
-  movieId='125805';
+  movieId={};
   componentWillMount(){
-    this._retrieveData("movie_particulars");
     const { navigation } = this.props;
-    this.movieId = navigation.getParam("movieId", "some default value");
-    console.log(this.movieId);
+    this.videos = navigation.getParam("videos", "some default value");
+    console.log(this.videos);
   }
-  _retrieveData = async (name) => {
-    var that = this;
-    try {
-      const value = await AsyncStorage.getItem(name);
-      if (value) {
-        that.setState({
-          movieData: JSON.parse(value)
-        });
-      }
-     } catch (error) {
-       // Error retrieving data
-     }
-  }
-  _storeData = async (name,string) => {
-    try {
-      await AsyncStorage.setItem(name, string);
-    } catch (error) {
-      // Error saving data
-    }
-  }
+
   render() {
     let data = this.state.movieData.basic;
     console.log(this.state.movieData);
@@ -56,12 +35,10 @@ export default class movieDetail extends Component {
       <ScrollView style={styles.container}>
         {/**<Text style={styles.welcome}>这是列dd表页</Text>*/}
         <View style={styles.postView}>
-          <TouchableOpacity onPress={() => this.toMovieVedio(data.video)}>
-            <Image
-              style={styles.post}
-              source={{ uri: postUrl }}
-            />
-          </TouchableOpacity>
+          <Image
+            style={styles.post}
+            source={{ uri: 'http://img31.mtime.cn/ph/2016/08/26/103620.34111419_1280X720X2.jpg' }}
+          />
           <View style={styles.desc}>
             <Text style={{color: 'white', fontSize: 20, }}>{data.name}</Text>
             <Text style={styles.info}>{data.nameEn}</Text>
@@ -79,15 +56,7 @@ export default class movieDetail extends Component {
           <Text style={styles.rate}>{data.overallRating}</Text>
         </View>
         <View style={styles.content}>
-          <Text
-            style={styles.contentText}
-            numberOfLines={this.state.expend?0:3}
-            ellipsizeMode='tail'
-          >{data.story}
-          </Text>
-          <TouchableOpacity onPress={() => this.togleLines()} style={{alignItems:'center'}}>
-            <Icon name={this.state.expend?"chevron-up":"chevron-down"} size={px2dp(22)} color="#666"/>
-          </TouchableOpacity>
+          <Text>{data.story}</Text>
         </View>
         <ActivityIndicator
           style={styles.load}
@@ -99,11 +68,7 @@ export default class movieDetail extends Component {
       </ScrollView>
     );
   }
-  togleLines(){
-    this.setState({
-      expend:!this.state.expend
-    })
-  }
+
   getMovieDetail() {
     fetch(`${this.movieDetailUrl}${this.movieId}`, {
       method: "GET"
@@ -121,14 +86,8 @@ export default class movieDetail extends Component {
         console.log(error);
       });
   }
-  toMovieVedio = (video) => {
-    console.log(video);
-    this.props.navigation.navigate("MovieVideo", {
-      videos: video
-    });
-  }
   componentDidMount() {
-    this.getMovieDetail();
+    //this.getMovieDetail();
   }
 }
 

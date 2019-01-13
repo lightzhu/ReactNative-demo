@@ -5,6 +5,7 @@ import { Tabs } from 'antd-mobile-rn';
 import MovieList from '../Common/movieList';
 import ComingSoon from '../Common/comingSoon';
 import MovieDetail from './movieDetail';
+import MovieVideo from './MovieVideo';
 // import movieData from "../Movie/list";
 const deviceWidth = Dimensions.get('window').width;
 const basePx = 375;
@@ -148,7 +149,18 @@ const RootStack = createStackNavigator(
           }
         })
       },
-    } 
+    },
+    MovieVideo: {
+      screen:MovieVideo,
+      navigationOptions: () => {
+        return ({
+          title: '3455',//childName,
+          headerStyle:{
+            height:45
+          }
+        })
+      }
+    }, 
   },
   {
     initialRouteName: "Movie"
@@ -158,7 +170,7 @@ const Movie = createAppContainer(RootStack);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#fff',
   },
   head:{
     paddingLeft:20,

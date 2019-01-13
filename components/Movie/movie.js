@@ -154,7 +154,7 @@ const RootStack = createStackNavigator(
       screen:MovieVideo,
       navigationOptions: () => {
         return ({
-          title: '3455',//childName,
+          title: '预告片',//childName,
           headerStyle:{
             height:45
           }

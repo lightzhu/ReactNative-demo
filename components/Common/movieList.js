@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     fontSize:10,
     flex:3,
     color:'#fff',
-    height:15,
+    lineHeight:20,
     backgroundColor:'rgba(116, 171, 52, 0.8)',
     alignItems:'center'
   },

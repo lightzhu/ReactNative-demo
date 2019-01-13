@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { StyleSheet, Text, View, AsyncStorage, Dimensions, ScrollView, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { StyleSheet,Text, View, AsyncStorage, Dimensions, ScrollView, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { Tabs } from 'antd-mobile-rn';
 import movieData from "../../src/data/movieDetail";
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -56,7 +56,7 @@ export default class movieDetail extends Component {
       <ScrollView style={styles.container}>
         {/**<Text style={styles.welcome}>这是列dd表页</Text>*/}
         <View style={styles.postView}>
-          <TouchableOpacity onPress={() => this.toMovieVedio(data.video)}>
+          <TouchableOpacity onPress={() => this.toMovieVedio(data.video,data.name,data.related)}>
             <Image
               style={styles.post}
               source={{ uri: postUrl }}
@@ -121,10 +121,12 @@ export default class movieDetail extends Component {
         console.log(error);
       });
   }
-  toMovieVedio = (video) => {
+  toMovieVedio = (video,name,related) => {
     console.log(video);
     this.props.navigation.navigate("MovieVideo", {
-      videos: video
+      videos: video,
+      name:name,
+      related:related
     });
   }
   componentDidMount() {

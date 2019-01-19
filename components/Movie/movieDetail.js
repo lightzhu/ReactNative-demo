@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-import { StyleSheet,Text, View, AsyncStorage, Dimensions, ScrollView, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { Tabs } from 'antd-mobile-rn';
+import { StyleSheet,Text,View, AsyncStorage, Dimensions, ScrollView, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
+import Actors from './actors';
 import movieData from "../../src/data/movieDetail";
 import Icon from 'react-native-vector-icons/FontAwesome';
 const deviceWidth = Dimensions.get('window').width;
@@ -50,7 +50,8 @@ export default class movieDetail extends Component {
   }
   render() {
     let data = this.state.movieData.basic;
-    console.log(this.state.movieData);
+    data.director.actorId=data.director.directorId;
+    let actor_list = [data.director,...data.actors];
     let postUrl = data.img;
     return (
       <ScrollView style={styles.container}>
@@ -89,6 +90,7 @@ export default class movieDetail extends Component {
             <Icon name={this.state.expend?"chevron-up":"chevron-down"} size={px2dp(22)} color="#666"/>
           </TouchableOpacity>
         </View>
+        <Actors actorList = {actor_list} />
         <ActivityIndicator
           style={styles.load}
           size="large"

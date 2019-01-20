@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import { StyleSheet,Text,View, AsyncStorage, Dimensions, ScrollView, Image, ActivityIndicator, TouchableOpacity } from 'react-native';
 import Actors from './actors';
+import PlayButton from '../Common/playButton';
 import movieData from "../../src/data/movieDetail";
 import Icon from 'react-native-vector-icons/FontAwesome';
 const deviceWidth = Dimensions.get('window').width;
@@ -57,11 +58,14 @@ export default class movieDetail extends Component {
       <ScrollView style={styles.container}>
         {/**<Text style={styles.welcome}>这是列dd表页</Text>*/}
         <View style={styles.postView}>
-          <TouchableOpacity onPress={() => this.toMovieVedio(data.video,data.name,data.related)}>
+          <TouchableOpacity onPress={() => this.toMovieVedio(data.video,data.name,data.movieId,data.stageImg)}>
             <Image
               style={styles.post}
               source={{ uri: postUrl }}
             />
+            <View style={styles.playBtn}>
+              <PlayButton />
+            </View>
           </TouchableOpacity>
           <View style={styles.desc}>
             <Text style={{color: 'white', fontSize: 20, }}>{data.name}</Text>
@@ -123,12 +127,13 @@ export default class movieDetail extends Component {
         console.log(error);
       });
   }
-  toMovieVedio = (video,name,related) => {
+  toMovieVedio = (video,name,related,stateImg) => {
     console.log(video);
     this.props.navigation.navigate("MovieVideo", {
       videos: video,
       name:name,
-      related:related
+      relatedID:related,
+      stateImgList:stateImg
     });
   }
   componentDidMount() {
@@ -154,12 +159,21 @@ const styles = StyleSheet.create({
     flexDirection:'row',
     padding:15,
     backgroundColor:'rgba(42, 80, 140, 0.8)',
+    position:'relative'
   },
   post:{
     width:105,
     height:164,
     borderWidth:1,
     borderColor:'#fff',
+  },
+  playBtn:{
+    position:'absolute',
+    textAlign:'center',
+    width:105,
+    height:164,
+    alignItems:'center',
+    justifyContent:'center'
   },
   desc:{
     color:'#fff',

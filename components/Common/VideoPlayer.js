@@ -45,10 +45,10 @@ class VideoPlayer extends React.Component {
   }
 }
 
-var NORMAL_WIDTH = sr.w;
+var NORMAL_WIDTH = deviceWidth;
 var NORMAL_HEIGHT = NORMAL_WIDTH*2/3;
-var FULL_WIDTH = sr.h;
-var FULL_HEIGHT = sr.w;
+// var FULL_WIDTH = sr.h;
+// var FULL_HEIGHT = sr.w;
 
 const styles = StyleSheet.create({
     container: {

@@ -17,4 +17,4 @@ ReactNative 项目入门演示
 3、react-native run-android
 
 # 演示
-<iframe width="560" height="315" src="https://ainode.herokuapp.com/public/www/videos.html?videoUrl=rn-app" frameborder="0" allowfullscreen></iframe>
+<video src="https://cdn.jsdelivr.net/gh/lightzhu/public_cdn@0.2/image/video/rn-app.mp4" controls="controls" width="500" height="800">您的浏览器不支持播放该视频！</video>
